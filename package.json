@@ -1,0 +1,62 @@
+{
+  "name": "duvo-dual",
+  "productName": "Duvo Dual",
+  "private": true,
+  "version": "1.0.2",
+  "description": "Premium dual-panel streaming browser — watch two streams side by side with built-in ad blocking and independent audio control.",
+  "author": {
+    "name": "MavTiN",
+    "url": "https://github.com/mavtin"
+  },
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "build": {
+    "appId": "com.duvo.dual",
+    "productName": "Duvo Dual",
+    "files": ["dist/**/*", "dist-electron/**/*", "assets/**/*"],
+    "publish": [{ "provider": "github", "owner": "mavtin", "repo": "Duvo-Dual" }],
+    "mac": {
+      "icon": "assets/icons/duvo-icon.icns",
+      "category": "public.app-category.entertainment",
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] },
+        { "target": "zip", "arch": ["arm64", "x64"] }
+      ]
+    },
+    "dmg": {
+      "title": "Duvo Dual",
+      "background": null,
+      "window": { "width": 540, "height": 380 }
+    },
+    "win": {
+      "icon": "assets/icons/duvo-icon.ico",
+      "target": [{ "target": "nsis", "arch": ["x64"] }]
+    },
+    "linux": {
+      "icon": "assets/icons/duvo-icon.png",
+      "target": ["AppImage"]
+    }
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "lucide-react": "^0.378.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "electron": "^41.3.0",
+    "electron-builder": "^26.8.1",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.2.2",
+    "vite": "^8.0.10",
+    "vite-plugin-electron": "^0.28.4",
+    "vite-plugin-electron-renderer": "^0.14.5"
+  }
+}

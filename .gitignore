@@ -1,0 +1,37 @@
+# Duvo Dual — .gitignore
+
+# Dependencies
+node_modules/
+
+# Build outputs (not needed in source repo — distributed via GitHub Releases)
+dist/
+dist-electron/
+
+# macOS system files
+.DS_Store
+**/.DS_Store
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Electron builder output
+out/
+release/
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime user data (generated, never source)
+adblock-rules.txt
+adblock-cache-time.txt
+duvo-session.json
+duvo-settings-main.json
