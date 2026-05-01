@@ -6,6 +6,19 @@ Watch two streams simultaneously — YouTube, Twitch, Netflix, ESPN, or any webs
 
 ---
 
+## Screenshots
+
+![Dual streams — PSG vs Bayern + ESPN side by side](assets/screenshots/dual-streams.png)
+*Watch two live streams at the same time — any sport, any site*
+
+![Home screen with bookmarks](assets/screenshots/home-screen.png)
+*Clean home screen with quick-access bookmarks for YouTube, Netflix, ESPN, Twitch and more*
+
+![Settings panel](assets/screenshots/settings.png)
+*Full settings panel — search engine, session isolation, ad blocking, notifications and more*
+
+---
+
 ## Features
 
 - **Dual panel browser** — Two fully independent browser panels, side by side
