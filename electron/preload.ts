@@ -86,4 +86,18 @@ contextBridge.exposeInMainWorld('duvoApi', {
     ipcRenderer.on('fullscreen-state', h);
     return () => ipcRenderer.removeListener('fullscreen-state', h);
   },
+
+  // ── Custom Windows title bar ───────────────────────────────────
+  platform:        process.platform,
+  minimizeWindow:  () => ipcRenderer.send('win-minimize'),
+  maximizeWindow:  () => ipcRenderer.send('win-maximize'),
+  closeWindow:     () => ipcRenderer.send('win-close'),
+  isMaximized:     () => ipcRenderer.invoke('win-is-maximized'),
+  showAbout:       () => ipcRenderer.send('show-about'),
+  onMaximizeChange: (callback: (maximized: boolean) => void) => {
+    const h = (_e: any, maximized: boolean) => callback(maximized);
+    ipcRenderer.on('win-maximize-change', h);
+    return () => ipcRenderer.removeListener('win-maximize-change', h);
+  },
 });
+

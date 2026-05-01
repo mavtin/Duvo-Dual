@@ -10,6 +10,7 @@ import duvoIcon from '../assets/icons/duvo-icon.png';
 import NewTab from './NewTab';
 import Settings from './Settings';
 import Onboarding from './Onboarding';
+import WinTitleBar from './WinTitleBar';
 import { useSettings, resolveUrl, loadSettings, DEFAULT_LAYOUT_PRESETS, type LayoutPreset } from './useSettings';
 
 declare global {
@@ -363,6 +364,9 @@ const App: React.FC = () => {
   return (
     <div className={`root${isDragging ? ' dragging' : ''}`}>
       {isDragging && <div className="drag-shield" />}
+
+      {/* Custom Windows title bar — only rendered on Windows (frame: false) */}
+      {(window as any).duvoApi?.platform === 'win32' && <WinTitleBar />}
 
       {/* Onboarding overlay */}
       {showOnboarding && (

@@ -1711,3 +1711,178 @@ html.layout-transitioning .panel {
 .mm-btn-activate:disabled {
   opacity: 0.4; cursor: not-allowed;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Windows Custom Title Bar
+   Only visible when platform === 'win32' (frame: false)
+   ══════════════════════════════════════════════════════════════ */
+
+.win-titlebar {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  min-height: 32px;
+  background: #0a0c10;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  user-select: none;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 9999;
+}
+
+/* Drag region — left branding */
+.win-titlebar-drag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  height: 100%;
+  -webkit-app-region: drag;
+  flex-shrink: 0;
+}
+
+.win-titlebar-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.win-titlebar-title {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* Flex spacer — fills the drag area in the middle */
+.win-titlebar-spacer {
+  flex: 1;
+  height: 100%;
+  -webkit-app-region: drag;
+}
+
+/* Right side — no-drag zone */
+.win-titlebar-right {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  -webkit-app-region: no-drag;
+  flex-shrink: 0;
+}
+
+/* ── Support dropdown ── */
+.win-support-wrapper {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.win-support-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 100%;
+  padding: 0 14px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.win-support-btn:hover,
+.win-support-btn.active {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.9);
+}
+
+.win-support-dropdown {
+  position: absolute;
+  top: calc(100% + 1px);
+  right: 0;
+  min-width: 210px;
+  background: #1a1d24;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  overflow: hidden;
+  z-index: 10000;
+  padding: 4px 0;
+  animation: fadeInDown 0.12s ease;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.win-menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.8);
+  font-family: var(--font);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.win-menu-item:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+.win-menu-separator {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 4px 0;
+}
+
+/* ── Window control buttons ── */
+.win-controls {
+  display: flex;
+  height: 100%;
+}
+
+.win-ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.win-ctrl-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.win-ctrl-btn:active {
+  background: rgba(255,255,255,0.16);
+}
+
+/* Close button — red on hover */
+.win-ctrl-close:hover {
+  background: #e81123;
+  color: #fff;
+}
+.win-ctrl-close:active {
+  background: #b50e1a;
+}
+
+/* Ensure root flex column so title bar stacks above content */
+.root {
+  display: flex;
+  flex-direction: column;
+}
+

@@ -497,8 +497,13 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
-    titleBarStyle: 'hiddenInset',
-    backgroundColor: '#0f1115', // Premium dark
+    // macOS: use hidden inset so traffic lights sit inside the app chrome.
+    // Windows: go fully frameless — we render our own title bar in the renderer.
+    ...(process.platform === 'win32'
+      ? { frame: false }
+      : { titleBarStyle: 'hiddenInset' as const }
+    ),
+    backgroundColor: '#0f1115',
     icon: path.join(__dirname, '../assets/icons',
       process.platform === 'win32' ? 'duvo-icon.ico'
       : process.platform === 'darwin' ? 'duvo-icon.icns'
@@ -518,6 +523,10 @@ function createWindow() {
   mainWindow.contentView.addChildView(viewB);
   mainWindow.webContents.setMaxListeners(50);
 
+  // Notify renderer of maximize/restore so the custom Windows title bar updates its icon
+  mainWindow.on('maximize',   () => mainWindow.webContents.send('win-maximize-change', true));
+  mainWindow.on('unmaximize', () => mainWindow.webContents.send('win-maximize-change', false));
+
   // Send initial mute state and start audio routing logic
   updateAudioRouting();
 
@@ -534,6 +543,27 @@ function createWindow() {
 }
 
 
+
+// ── Custom Windows title bar — window control IPC ─────────────────────────────
+ipcMain.on('win-minimize', () => mainWindow?.minimize());
+ipcMain.on('win-maximize', () => {
+  if (mainWindow?.isMaximized()) mainWindow.unmaximize();
+  else mainWindow?.maximize();
+});
+ipcMain.on('win-close', () => mainWindow?.close());
+ipcMain.handle('win-is-maximized', () => mainWindow?.isMaximized() ?? false);
+
+// About dialog (used by custom Windows title bar Support menu + macOS Help menu)
+ipcMain.on('show-about', () => {
+  const { dialog } = require('electron');
+  dialog.showMessageBox(mainWindow!, {
+    type: 'info',
+    title: 'About Duvo Dual',
+    message: 'Duvo Dual',
+    detail: `Version ${app.getVersion()}\n\nPremium dual-panel streaming browser\nfor macOS & Windows.\n\nCopyright \u00A9 2026 MavTiN\nhttps://github.com/mavtin/Duvo-Dual`,
+    buttons: ['OK'],
+  });
+});
 
 // IPC Handlers
 ipcMain.on('update-bounds', (event, boundsA, boundsB) => {
