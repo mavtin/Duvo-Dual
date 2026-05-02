@@ -1,5 +1,17 @@
 name: Build & Release
 
+# ─────────────────────────────────────────────────────────────────────────────
+# HOW TO RELEASE A NEW VERSION — read this before pushing a tag
+#
+#   1. Bump "version" in package.json  (e.g. 1.0.4 → 1.0.5)
+#   2. Commit:   git commit -am "release: v1.0.5"
+#   3. Push:     git push
+#   4. Tag:      git tag v1.0.5
+#   5. Push tag: git push --tags
+#
+# The tag MUST match the version in package.json or the build will fail.
+# ─────────────────────────────────────────────────────────────────────────────
+
 on:
   push:
     tags:
@@ -9,9 +21,40 @@ permissions:
   contents: write
 
 jobs:
+  # ── Guard: tag must match package.json version ──────────────────────────────
+  version-check:
+    name: Verify tag matches package.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check version consistency
+        run: |
+          TAG="${{ github.ref_name }}"                          # e.g. v1.0.5
+          PKG="v$(node -p "require('./package.json').version")" # e.g. v1.0.5
+          echo "Git tag  : $TAG"
+          echo "package.json: $PKG"
+          if [ "$TAG" != "$PKG" ]; then
+            echo ""
+            echo "❌ MISMATCH — tag $TAG does not match package.json $PKG"
+            echo ""
+            echo "Fix: bump the version in package.json to match your tag,"
+            echo "then commit, push, delete the tag, and re-push."
+            echo ""
+            echo "  git tag -d $TAG"
+            echo "  git push origin :refs/tags/$TAG"
+            echo "  # edit package.json → set version to ${TAG#v}"
+            echo "  git commit -am 'release: $TAG'"
+            echo "  git push && git tag $TAG && git push --tags"
+            exit 1
+          fi
+          echo "✅ Version check passed — $TAG"
+
+  # ── macOS build ─────────────────────────────────────────────────────────────
   build-mac:
     name: Build macOS (Apple Silicon + Intel)
     runs-on: macos-latest
+    needs: version-check          # only runs if version-check passes
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +73,7 @@ jobs:
       - name: Build macOS DMG + ZIP (Apple Silicon + Intel)
         run: npx electron-builder --mac --publish never
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false   # skip code signing — no cert needed
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Rename artifacts to friendly names
         run: |
@@ -38,14 +81,15 @@ jobs:
           cd dist
 
           # Apple Silicon (arm64)
-          [ -f "Duvo Dual-${VERSION}-arm64.dmg" ]      && mv "Duvo Dual-${VERSION}-arm64.dmg"      "Duvo-Dual-${VERSION}-Apple-Silicon.dmg"
-          [ -f "Duvo Dual-${VERSION}-arm64-mac.zip" ]  && mv "Duvo Dual-${VERSION}-arm64-mac.zip"  "Duvo-Dual-${VERSION}-Apple-Silicon.zip"
+          [ -f "Duvo Dual-${VERSION}-arm64.dmg" ]     && mv "Duvo Dual-${VERSION}-arm64.dmg"     "Duvo-Dual-${VERSION}-Apple-Silicon.dmg"
+          [ -f "Duvo Dual-${VERSION}-arm64-mac.zip" ] && mv "Duvo Dual-${VERSION}-arm64-mac.zip" "Duvo-Dual-${VERSION}-Apple-Silicon.zip"
 
           # Intel (x64)
-          [ -f "Duvo Dual-${VERSION}.dmg" ]            && mv "Duvo Dual-${VERSION}.dmg"            "Duvo-Dual-${VERSION}-Intel.dmg"
-          [ -f "Duvo Dual-${VERSION}-mac.zip" ]        && mv "Duvo Dual-${VERSION}-mac.zip"        "Duvo-Dual-${VERSION}-Intel.zip"
+          [ -f "Duvo Dual-${VERSION}.dmg" ]           && mv "Duvo Dual-${VERSION}.dmg"           "Duvo-Dual-${VERSION}-Intel.dmg"
+          [ -f "Duvo Dual-${VERSION}-mac.zip" ]       && mv "Duvo Dual-${VERSION}-mac.zip"       "Duvo-Dual-${VERSION}-Intel.zip"
 
-          echo "=== Renamed artifacts ===" && ls -lh *.dmg *.zip 2>/dev/null || true
+          echo "=== Final artifacts ==="
+          ls -lh *.dmg *.zip 2>/dev/null || true
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -58,9 +102,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # ── Windows build ────────────────────────────────────────────────────────────
   build-windows:
     name: Build Windows (x64 Installer)
     runs-on: windows-latest
+    needs: version-check          # only runs if version-check passes
     steps:
       - uses: actions/checkout@v4
 
@@ -85,7 +131,8 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           cd dist
           [ -f "Duvo Dual Setup ${VERSION}.exe" ] && mv "Duvo Dual Setup ${VERSION}.exe" "Duvo-Dual-Setup-${VERSION}.exe"
-          echo "=== Renamed ===" && ls *.exe 2>/dev/null || true
+          echo "=== Final artifact ==="
+          ls *.exe 2>/dev/null || true
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
