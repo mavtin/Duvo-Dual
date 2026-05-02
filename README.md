@@ -71,22 +71,7 @@ npm run dev
 npm run build
 ```
 
-> **Note:** macOS builds (`.dmg`) must be built on a Mac. Windows builds (`.exe`) must be built on Windows.  
-> Push a git tag to trigger the GitHub Actions workflow, which builds both automatically.
-
----
-
-## Releasing a New Version
-
-```bash
-# 1. Bump version in package.json
-# 2. Commit the change
-git commit -am "Release v1.0.3"
-
-# 3. Tag and push — GitHub Actions builds + uploads installers automatically
-git tag v1.0.3
-git push && git push --tags
-```
+> **Note:** macOS builds (`.dmg`) must be built on a Mac. Windows builds (`.exe`) must be built on Windows.
 
 ---
 
