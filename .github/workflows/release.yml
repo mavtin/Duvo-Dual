@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build-mac:
-    name: Build macOS (DMG)
+    name: Build macOS (Apple Silicon + Intel)
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,22 +27,39 @@ jobs:
       - name: Compile TypeScript + Vite
         run: npx tsc && npx vite build
 
-      - name: Build macOS DMG (unsigned)
+      - name: Build macOS DMG + ZIP (Apple Silicon + Intel)
         run: npx electron-builder --mac --publish never
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
+          CSC_IDENTITY_AUTO_DISCOVERY: false   # skip code signing — no cert needed
+
+      - name: Rename artifacts to friendly names
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          cd dist
+
+          # Apple Silicon (arm64)
+          [ -f "Duvo Dual-${VERSION}-arm64.dmg" ]      && mv "Duvo Dual-${VERSION}-arm64.dmg"      "Duvo-Dual-${VERSION}-Apple-Silicon.dmg"
+          [ -f "Duvo Dual-${VERSION}-arm64-mac.zip" ]  && mv "Duvo Dual-${VERSION}-arm64-mac.zip"  "Duvo-Dual-${VERSION}-Apple-Silicon.zip"
+
+          # Intel (x64)
+          [ -f "Duvo Dual-${VERSION}.dmg" ]            && mv "Duvo Dual-${VERSION}.dmg"            "Duvo-Dual-${VERSION}-Intel.dmg"
+          [ -f "Duvo Dual-${VERSION}-mac.zip" ]        && mv "Duvo Dual-${VERSION}-mac.zip"        "Duvo-Dual-${VERSION}-Intel.zip"
+
+          echo "=== Renamed artifacts ===" && ls -lh *.dmg *.zip 2>/dev/null || true
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/*.dmg
-            dist/*.zip
+            dist/Duvo-Dual-*-Apple-Silicon.dmg
+            dist/Duvo-Dual-*-Apple-Silicon.zip
+            dist/Duvo-Dual-*-Intel.dmg
+            dist/Duvo-Dual-*-Intel.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows:
-    name: Build Windows (NSIS Installer)
+    name: Build Windows (x64 Installer)
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,10 +79,18 @@ jobs:
       - name: Build Windows NSIS installer
         run: npx electron-builder --win --publish never
 
+      - name: Rename Windows installer
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          cd dist
+          [ -f "Duvo Dual Setup ${VERSION}.exe" ] && mv "Duvo Dual Setup ${VERSION}.exe" "Duvo-Dual-Setup-${VERSION}.exe"
+          echo "=== Renamed ===" && ls *.exe 2>/dev/null || true
+
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/*.exe
+            dist/Duvo-Dual-Setup-*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
