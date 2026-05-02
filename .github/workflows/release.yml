@@ -94,13 +94,15 @@ jobs:
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          name: "Duvo Dual ${{ github.ref_name }}"
+          generate_release_notes: true
           files: |
             dist/Duvo-Dual-*-Apple-Silicon.dmg
             dist/Duvo-Dual-*-Apple-Silicon.zip
             dist/Duvo-Dual-*-Intel.dmg
             dist/Duvo-Dual-*-Intel.zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
   # ── Windows build ────────────────────────────────────────────────────────────
   build-windows:
@@ -137,7 +139,9 @@ jobs:
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          name: "Duvo Dual ${{ github.ref_name }}"
+          generate_release_notes: true
           files: |
             dist/Duvo-Dual-Setup-*.exe
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
