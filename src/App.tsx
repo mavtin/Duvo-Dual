@@ -11,7 +11,10 @@ import NewTab from './NewTab';
 import Settings from './Settings';
 import Onboarding from './Onboarding';
 import WinTitleBar from './WinTitleBar';
+import AboutModal from './AboutModal';
 import { useSettings, resolveUrl, loadSettings, DEFAULT_LAYOUT_PRESETS, type LayoutPreset } from './useSettings';
+
+const isWin = (window as any).duvoApi?.platform === 'win32';
 
 declare global {
   interface Window { duvoApi: any; initialSessionLayout?: string; }
@@ -107,8 +110,9 @@ const App: React.FC = () => {
   const inputARef = useRef<HTMLInputElement>(null);
   const inputBRef = useRef<HTMLInputElement>(null);
 
-  // ── Update banner ─────────────────────────────────────────
+  // ── Update banner ─────────────────────────────────────────────
   const [updateInfo, setUpdateInfo] = useState<{ version: string; url: string } | null>(null);
+  const [showAbout, setShowAbout] = useState(false);
 
 
   // ── Auto-hide toolbar ─────────────────────────────────────────
@@ -239,6 +243,12 @@ const App: React.FC = () => {
     const off = window.duvoApi.onUpdateAvailable?.((version: string, url: string) => {
       setUpdateInfo({ version, url });
     });
+    return () => off?.();
+  }, []);
+
+  // Listen for About modal trigger (from WinTitleBar Support menu or macOS Help menu)
+  useEffect(() => {
+    const off = window.duvoApi.onShowAboutModal?.(() => setShowAbout(true));
     return () => off?.();
   }, []);
 
@@ -385,11 +395,14 @@ const App: React.FC = () => {
         />
       )}
 
+      {/* About modal */}
+      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
+
       {/* ── Window chrome ── */}
       <header className="chrome">
         <div className="drag-zone" />
 
-        <div className="chrome-brand">
+        <div className="chrome-brand" style={isWin ? { display: 'none' } : undefined}>
           <img src={duvoIcon} alt="" className="chrome-logo" />
           <span className="chrome-title">Duvo Dual</span>
         </div>

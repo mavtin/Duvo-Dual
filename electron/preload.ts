@@ -89,15 +89,22 @@ contextBridge.exposeInMainWorld('duvoApi', {
 
   // ── Custom Windows title bar ───────────────────────────────────
   platform:        process.platform,
+  appVersion:      process.env.npm_package_version ?? '',   // populated by Vite/Electron
   minimizeWindow:  () => ipcRenderer.send('win-minimize'),
   maximizeWindow:  () => ipcRenderer.send('win-maximize'),
   closeWindow:     () => ipcRenderer.send('win-close'),
   isMaximized:     () => ipcRenderer.invoke('win-is-maximized'),
   showAbout:       () => ipcRenderer.send('show-about'),
+  getAppVersion:   () => ipcRenderer.invoke('get-app-version'),
   onMaximizeChange: (callback: (maximized: boolean) => void) => {
     const h = (_e: any, maximized: boolean) => callback(maximized);
     ipcRenderer.on('win-maximize-change', h);
     return () => ipcRenderer.removeListener('win-maximize-change', h);
+  },
+  onShowAboutModal: (callback: () => void) => {
+    const h = () => callback();
+    ipcRenderer.on('show-about-modal', h);
+    return () => ipcRenderer.removeListener('show-about-modal', h);
   },
 });
 

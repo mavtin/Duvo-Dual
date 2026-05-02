@@ -553,17 +553,13 @@ ipcMain.on('win-maximize', () => {
 ipcMain.on('win-close', () => mainWindow?.close());
 ipcMain.handle('win-is-maximized', () => mainWindow?.isMaximized() ?? false);
 
-// About dialog (used by custom Windows title bar Support menu + macOS Help menu)
+// About — send to renderer so it can show a custom themed modal
 ipcMain.on('show-about', () => {
-  const { dialog } = require('electron');
-  dialog.showMessageBox(mainWindow!, {
-    type: 'info',
-    title: 'About Duvo Dual',
-    message: 'Duvo Dual',
-    detail: `Version ${app.getVersion()}\n\nPremium dual-panel streaming browser\nfor macOS & Windows.\n\nCopyright \u00A9 2026 MavTiN\nhttps://github.com/mavtin/Duvo-Dual`,
-    buttons: ['OK'],
-  });
+  mainWindow?.webContents.send('show-about-modal');
 });
+
+// Expose app version to renderer reliably (works in packaged builds)
+ipcMain.handle('get-app-version', () => app.getVersion());
 
 // IPC Handlers
 ipcMain.on('update-bounds', (event, boundsA, boundsB) => {
