@@ -94,12 +94,16 @@ body {
   flex-shrink: 0;
 }
 
+/* Windows: no traffic lights — match left padding to right */
+.chrome--win { padding-left: 16px; }
+
 .drag-zone {
   position: absolute;
   inset: 0;
   -webkit-app-region: drag;
   z-index: 0;
 }
+
 
 .no-drag {
   -webkit-app-region: no-drag;
@@ -1814,6 +1818,7 @@ html.layout-transitioning .panel {
   z-index: 10000;
   padding: 4px 0;
   animation: fadeInDown 0.12s ease;
+  -webkit-app-region: no-drag; /* prevent chrome drag zone intercepting clicks */
 }
 
 @keyframes fadeInDown {

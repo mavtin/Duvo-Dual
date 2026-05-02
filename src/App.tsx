@@ -399,7 +399,8 @@ const App: React.FC = () => {
       {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
 
       {/* ── Window chrome ── */}
-      <header className="chrome">
+      <header className={`chrome${isWin ? ' chrome--win' : ''}`}>
+
         <div className="drag-zone" />
 
         <div className="chrome-brand" style={isWin ? { display: 'none' } : undefined}>
